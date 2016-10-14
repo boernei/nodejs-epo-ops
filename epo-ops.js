@@ -68,11 +68,9 @@ function talk (method, path, params, callback) {
     }
 
     try {
-    console.log("plain data");
-    console.log(res.body);
+
       data = JSON.parse(res.body); 
-      console.log("data ready");
-      console.log(data);
+
 
       if (data.error) {
         error = new Error ('API error');
@@ -176,7 +174,8 @@ app.getPopulated = function oauth_getPop (path, params, callback) {
 
         app.get('/rest-services/published-data/publication/epodoc/'+id+'/biblio', null, function (error,data) {
 
-
+            console.log(error);
+            console.log("data biblio ready");
 
             // console.log("results array");
             // console.log(data["ops:world-patent-data"]);
@@ -195,6 +194,7 @@ app.getPopulated = function oauth_getPop (path, params, callback) {
     Promise.all(promises)
     .then(function() { 
 
+      console.log('all dropped)'); 
 
       callback(error,data);
     })

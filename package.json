@@ -9,10 +9,10 @@
   "version":              "0.1.0",
   "repository": {
     "type":               "git",
-    "url":                "git://github.com/fvdm/nodejs-epo-ops.git"
+    "url":                "git://github.com/boernei/nodejs-epo-ops.git"
   },
   "bugs": {
-    "url":                "https://github.com/fvdm/nodejs-epo-ops/issues"
+    "url":                "https://github.com/boernei/nodejs-epo-ops/issues"
   },
   "main":                 "epo-ops.js",
   "dependencies": {

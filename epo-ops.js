@@ -10,7 +10,7 @@ Service name:   European Patent Office - Open Patent Services
 Service docs:   http://www.epo.org/searching/free/ops.html
 */
 
-var xml2json = require ('simple-xml2json') .parser;
+
 var http = require ('httpreq');
 
 var config = {};
@@ -44,15 +44,19 @@ function talk (method, path, params, callback) {
     method: method,
     timeout: config.timeout,
     headers: {
-      'User-Agent': 'epo-ops.js (https://github.com/fvdm/nodejs-epo-ops)'
+      'User-Agent': 'epo-ops.js (https://github.com/fvdm/nodejs-epo-ops)',
+      'Accept': 'application/json' 
     }
   };
 
-  if (config.access_token) {
-    options.headers.Authorization = 'Bearer ' + config.access_token;
-  } else {
-    options.auth = base64_encode (config.consumer_key + ':' + config.consumer_secret);
-  }
+  // if (config.access_token) {
+  //   options.headers.Authorization = 'Bearer ' + config.access_token;
+  // } else {
+  //   options.auth = base64_encode (config.consumer_key + ':' + config.consumer_secret);
+  // }
+
+  console.log("get " + options);
+  console.log(options);
 
   http.doRequest (options, function (err, res) {
     var data = null;
@@ -64,7 +68,11 @@ function talk (method, path, params, callback) {
     }
 
     try {
-      data = xml2json (res.body);
+    console.log("plain data");
+    console.log(res.body);
+      data = JSON.parse(res.body); 
+      console.log("data ready");
+      console.log(data);
 
       if (data.error) {
         error = new Error ('API error');
@@ -126,6 +134,75 @@ app.get = function oauth_get (path, params, callback) {
   }
 
   talk ('GET', path, params, callback);
+};
+
+
+
+
+app.loadDetailof = function populateInfo(name, list) {
+
+    var deferred = Promise.defer();
+    
+    // here will go the function's logic
+    
+    return deferred.promise;
+}
+
+app.getPopulated = function oauth_getPop (path, params, callback) {
+  if (typeof params === 'function') {
+    callback = params;
+    params = null;
+  }
+
+  console.log("getPopulated");
+
+  talk ('GET', path, params, function(error,data)
+    {
+      var patentlist = data["ops:world-patent-data"]["ops:biblio-search"]["ops:search-result"]["ops:publication-reference"];
+    
+      console.log("ready search")
+    var promises = patentlist.map(function(patent) {
+      return new Promise(function(resolve, reject) {
+
+
+        ///rest-services/published-data/publication/epodoc/WO2016149300/biblio
+
+        var id = patent["document-id"]["country"]["$"] + patent["document-id"]["doc-number"]["$"];
+
+        console.log("serch for id " + id);
+
+//https://ops.epo.org/3.1/published-data/publication/epodoc/US2016244791/biblio
+//http://ops.epo.org/3.1/rest-services/published-data/publication/epodoc/US2016244791/biblio
+
+        app.get('/rest-services/published-data/publication/epodoc/'+id+'/biblio', null, function (error,data) {
+
+
+
+            // console.log("results array");
+            // console.log(data["ops:world-patent-data"]);
+            // console.log(data["ops:world-patent-data"]["ops:biblio-search"]["ops:search-result"]["ops:publication-reference"]);
+            
+
+            patent['biblio'] = data;
+
+             resolve();
+        });
+
+
+      });
+    });
+
+    Promise.all(promises)
+    .then(function() { 
+
+
+      callback(error,data);
+    })
+    .catch(console.error);
+
+
+    }
+    );
 };
 
 

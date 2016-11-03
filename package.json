@@ -1,12 +1,12 @@
 {
   "author": {
-    "name":               "Franklin van de Meent",
-    "email":              "fr@nkl.in",
+    "name":               "Franklin van de Meent","Bernhard Hering"
+    "email":              "fr@nkl.in","hering.bernhard@gmail.com"
     "url":                "https://frankl.in"
   },
   "name":                 "epo-ops",
   "description":          "Access some basic EPO Open Patent Services",
-  "version":              "0.1.0",
+  "version":              "0.1.1",
   "repository": {
     "type":               "git",
     "url":                "git://github.com/boernei/nodejs-epo-ops.git"

@@ -24,7 +24,7 @@ var app = {
  * @param {String} str
  * @return {void}
  */
-function base64_encode (str) {
+ function base64_encode (str) {
   return new Buffer (str, 'utf8') .toString ('base64');
 }
 
@@ -37,7 +37,7 @@ function base64_encode (str) {
  * @param {Function} callback
  * @return {void}
  */
-function talk (method, path, params, callback) {
+ function talk (method, path, params, callback) {
   var options = {
     url: 'https://ops.epo.org/3.1' + path,
     parameters: params,
@@ -99,7 +99,7 @@ function talk (method, path, params, callback) {
  * @param {Function} callback
  * @return {void}
  */
-app.accessToken = function oauth_accesstoken (callback) {
+ app.accessToken = function oauth_accesstoken (callback) {
   var params = {
     grant_type: 'client_credentials'
   };
@@ -125,7 +125,7 @@ app.accessToken = function oauth_accesstoken (callback) {
  * @param {Function} callback
  * @return {void}
  */
-app.get = function oauth_get (path, params, callback) {
+ app.get = function oauth_get (path, params, callback) {
   if (typeof params === 'function') {
     callback = params;
     params = null;
@@ -139,71 +139,76 @@ app.get = function oauth_get (path, params, callback) {
 
 app.loadDetailof = function populateInfo(name, list) {
 
-    var deferred = Promise.defer();
-    
+  var deferred = Promise.defer();
+
     // here will go the function's logic
     
     return deferred.promise;
-}
-
-app.getPopulated = function oauth_getPop (path, params, callback) {
-  if (typeof params === 'function') {
-    callback = params;
-    params = null;
   }
 
-  console.log("getPopulated");
+  app.getPopulated = function oauth_getPop (path, params, callback) {
+    if (typeof params === 'function') {
+      callback = params;
+      params = null;
+    }
 
-  talk ('GET', path, params, function(error,data)
+    console.log("getPopulated");
+
+    talk ('GET', path, params, function(error,data)
     {
-      var patentlist = data["ops:world-patent-data"]["ops:biblio-search"]["ops:search-result"]["ops:publication-reference"];
-    
-      console.log("ready search")
-    var promises = patentlist.map(function(patent) {
-      return new Promise(function(resolve, reject) {
+
+      console.log(data);
+      if (!data)
+        callback(error,data);
+      else 
+      {
+
+        var patentlist = data["ops:world-patent-data"]["ops:biblio-search"]["ops:search-result"]["ops:publication-reference"];
+
+        console.log("ready search");
+
+        if (!patentlist)
+          callback(error,data);
+        else 
+        {
+
+          var promises = patentlist.map(function(patent) {
+            return new Promise(function(resolve, reject) {
+
+              var id = patent["document-id"]["country"]["$"] + patent["document-id"]["doc-number"]["$"];
+
+              console.log("serch for id " + id);
+
+              app.get('/rest-services/published-data/publication/epodoc/'+id+'/biblio', null, function (error,data) {
+
+                console.log(error);
+                console.log("data biblio ready");
+
+                patent['biblio'] = data;
+
+                resolve();
+              });
 
 
-        ///rest-services/published-data/publication/epodoc/WO2016149300/biblio
+            });
+          });
 
-        var id = patent["document-id"]["country"]["$"] + patent["document-id"]["doc-number"]["$"];
+          Promise.all(promises)
+          .then(function() { 
 
-        console.log("serch for id " + id);
+            console.log('all dropped)'); 
 
-//https://ops.epo.org/3.1/published-data/publication/epodoc/US2016244791/biblio
-//http://ops.epo.org/3.1/rest-services/published-data/publication/epodoc/US2016244791/biblio
-
-        app.get('/rest-services/published-data/publication/epodoc/'+id+'/biblio', null, function (error,data) {
-
-            console.log(error);
-            console.log("data biblio ready");
-
-            // console.log("results array");
-            // console.log(data["ops:world-patent-data"]);
-            // console.log(data["ops:world-patent-data"]["ops:biblio-search"]["ops:search-result"]["ops:publication-reference"]);
-            
-
-            patent['biblio'] = data;
-
-             resolve();
-        });
+            callback(error,data);
+          })
+          .catch(console.error);
 
 
-      });
-    });
-
-    Promise.all(promises)
-    .then(function() { 
-
-      console.log('all dropped)'); 
-
-      callback(error,data);
-    })
-    .catch(console.error);
-
-
+        }
+      }
     }
     );
-};
+
+  };
 
 
 /**
@@ -213,7 +218,7 @@ app.getPopulated = function oauth_getPop (path, params, callback) {
  * @param {Object} params
  * @return {Object}
  */
-module.exports = function (params) {
+ module.exports = function (params) {
   var key;
 
   for (key in params) {

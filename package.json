@@ -1,13 +1,13 @@
 {
   "author": {
-    "name":               "Franklin van de Meent"
+    "name":               "Franklin van de Meent",
     "email":              "fr@nkl.in",
     "url":                "https://frankl.in"
   },
   "contributors":{
-    "name":               "Bernhard Hering"
+    "name":               "Bernhard Hering",
     "email":              "hering.Bernhard@gmail.com",
-    "url":                "https://bernardhering.de"
+    "url":                "https://bernhardhering.de"
   },
   "name":                 "epo-ops",
   "description":          "Access some basic EPO Open Patent Services",
